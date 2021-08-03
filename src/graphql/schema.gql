@@ -1,0 +1,67 @@
+query findProject($id: Float!) {
+  findProjectById(id: $id) {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+}
+query getProjects {
+  getProjects {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+}
+query getTasks {
+  getTasks {
+    id
+    name
+    savedOn
+    isComplete
+  }
+}
+query getMyTaskLanguage($taskId: Float!) {
+  getMyTaskLanguage(taskId: $taskId)
+}
+
+query getTranslationLanguage($input: GetTranslationLanguageInput!) {
+  getTranslationLanguage (input: $input) {
+    languageId
+    keyName
+    en
+    assignedLanguageName,
+    assignedLanguageValue
+  }
+}
+
+query me {
+  me {
+    id
+    email
+    role
+  }
+}
+mutation createTask($taskName: CreateTaskInput!) {
+  createTask(createTaskDto: $taskName)
+}
+mutation createNewTask($createNewTaskDto: CreateNewTaskInput!) {
+  createNewTask(createNewTaskDto: $createNewTaskDto) {
+    ok
+    error
+  }
+}
+mutation loginUser($loginUser: LoginUserDto!) {
+  loginUser(loginUser: $loginUser) {
+    error
+    ok
+    token
+  }
+}
+mutation updateTranslationLanguage($input: UpdateTranslationLanguageInput!) {
+  updateTranslationLanguage(updateTranslationLanguageInput: $input) {
+    ok
+    error
+  }
+}
