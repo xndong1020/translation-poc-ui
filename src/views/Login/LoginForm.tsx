@@ -242,6 +242,7 @@ const LoginForm = () => {
                   className={classes.submitButton}
                 >
                   <Button
+                    fullWidth
                     type="submit"
                     variant="contained"
                     color="secondary"
