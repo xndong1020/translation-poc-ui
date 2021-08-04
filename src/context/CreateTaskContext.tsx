@@ -12,7 +12,7 @@ export interface ICreateTaskContextProps {
   taskName: string;
   setTaskName: (taskName: string) => void;
   translationItems: TranslationKey[];
-  addTranslationItems: (translationKey: TranslationKey) => void;
+  addTranslationItems: (translationKeys: TranslationKey[]) => void;
   removeTranslationItems: (toBeRemovedIndex: number) => void;
   assignees: Assignee[];
   setAssignees: (assignees: Assignee[]) => void;
@@ -22,7 +22,7 @@ const initContextValue = {
   taskName: "",
   setTaskName: (taskName: string) => {},
   translationItems: [],
-  addTranslationItems: (translationKey: TranslationKey) => {},
+  addTranslationItems: (translationKeys: TranslationKey[]) => {},
   removeTranslationItems: (toBeRemovedIndex: number) => {},
   assignees: [],
   setAssignees: (assignees: Assignee[]) => {},
@@ -40,16 +40,10 @@ export const CreateTaskContextProvider = memo(
       }));
     };
 
-    const addKey = (
-      allKeys: TranslationKey[],
-      toBeAdded: TranslationKey
-    ): TranslationKey[] => {
-      return [...allKeys, toBeAdded];
-    };
-    const addTranslationItems = (translationKey: TranslationKey) => {
+    const addTranslationItems = (translationKeys: TranslationKey[]) => {
       setState((prevState: ICreateTaskContextProps) => ({
         ...prevState,
-        translationItems: addKey(prevState.translationItems, translationKey),
+        translationItems: [...prevState.translationItems, ...translationKeys],
       }));
     };
 
