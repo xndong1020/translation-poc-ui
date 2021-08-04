@@ -1,11 +1,7 @@
 // eslint-disable
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { allLanguages } from "../../constants/constants";
-import {
-  TranslationTaskResponse,
-  UpdateTranslationLanguageInput,
-} from "../../graphql/graphqlTypes";
+import { TranslationTaskResponse } from "../../graphql/graphqlTypes";
 import { getMyTask } from "../../services/task.service";
 import { Edit } from "@material-ui/icons";
 import {
@@ -147,19 +143,10 @@ const TaskItem = () => {
   };
 
   const handleSubmit = async () => {
-    const langs = headers.filter((h) => h && allLanguages.includes(h));
-    if (langs.length && translate) {
-      const input: UpdateTranslationLanguageInput & {
-        [key: string]: string;
-      } = {};
-
-      for (const lang of langs) {
-        if (lang && translate) input[lang] = translate;
-      }
-
+    if (taskLanguage && translate) {
       const { ok } = await updateTranslationLanguage({
         id: currentRecord.langId,
-        ...input,
+        [taskLanguage]: translate,
       });
 
       if (ok) {
