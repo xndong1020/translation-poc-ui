@@ -29,6 +29,7 @@ import {
   getMyTaskLanguage,
   updateTranslationLanguage,
 } from "../../services/language.service";
+import { languageAbbrToFull } from "../../mappers/languageMapper";
 
 const useStyles = makeStyles<Theme>(extendedTablesStyle);
 
@@ -66,7 +67,12 @@ const TaskItem = () => {
     return () => {};
   }, [id]);
 
-  const regularHeaders = ["#", "key", "en", taskLanguage];
+  const regularHeaders = [
+    "#",
+    "KEY",
+    languageAbbrToFull("en"),
+    languageAbbrToFull(taskLanguage),
+  ];
 
   const editTranslation = (
     taskId: number,
