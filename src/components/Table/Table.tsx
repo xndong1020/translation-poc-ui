@@ -17,14 +17,10 @@ function CustomTable({ ...props }: any) {
     tableData,
     tableHeaderColor,
     hover,
-    colorsColls,
-    coloredColls,
     customCellClasses,
     customClassesForCells,
     striped,
     tableShopping,
-    customHeadCellClasses,
-    customHeadClassesForCells,
   } = props;
   return (
     <div className={classes.tableResponsive}>

@@ -157,7 +157,7 @@ const TaskItem = () => {
         if (lang && translate) input[lang] = translate;
       }
 
-      const { ok, error } = await updateTranslationLanguage({
+      const { ok } = await updateTranslationLanguage({
         id: currentRecord.langId,
         ...input,
       });

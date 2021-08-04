@@ -3,7 +3,7 @@ import { useContext } from "react";
 // core components
 import GridContainer from "../../../components/Grid/GridContainer";
 import GridItem from "../../../components/Grid/GridItem";
-import { Avatar, Chip, makeStyles, Theme, Typography } from "@material-ui/core";
+import { Avatar, Chip, makeStyles, Theme } from "@material-ui/core";
 import Card from "../../../components/Card/Card";
 import CardHeader from "../../../components/Card/CardHeader";
 import CardIcon from "../../../components/Card/CardIcon";

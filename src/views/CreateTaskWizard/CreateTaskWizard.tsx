@@ -23,21 +23,25 @@ const WizardView = () => {
                 stepName: "Create Task",
                 stepComponent: Step1,
                 stepId: "createTask",
+                key: "createTask",
               },
               {
                 stepName: "Add Translation Keys",
                 stepComponent: Step2,
                 stepId: "addTranslationItems",
+                key: "addTranslationItems",
               },
               {
                 stepName: "Assign Task",
                 stepComponent: Step3,
                 stepId: "assignTask",
+                key: "assignTask",
               },
               {
                 stepName: "Confirm",
                 stepComponent: Step4,
                 stepId: "confirm",
+                key: "confirm",
               },
             ]}
             title="Build Your Profile"

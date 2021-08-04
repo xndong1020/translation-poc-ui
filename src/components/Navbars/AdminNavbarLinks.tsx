@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import classNames from "classnames";
 import { makeStyles, Theme } from "@material-ui/core";
 // @material-ui/core components
@@ -20,12 +20,19 @@ import Button from "../CustomButtons/Button";
 
 import rtlHeaderLinksStyle from "../../assets/jss/material-dashboard-react/components/rtlHeaderLinksStyle";
 import { useHistory } from "react-router-dom";
+import Message from "./Message";
+import { WebSocketContext } from "../../context/WebSocketContext";
+import { UserRole } from "../../graphql/graphqlTypes";
+import { MainContext } from "../../context/MainContext";
 
 const useStyles = makeStyles<Theme>(rtlHeaderLinksStyle);
 
 interface Props {}
 
 const HeaderLinks = (props: Props) => {
+  const { currentMessage } = useContext(WebSocketContext);
+  const { role } = useContext(MainContext);
+  console.log("currentMessage from navbar", currentMessage);
   const [anchorEl, setAnchorEl] = useState(null);
   const history = useHistory();
   const open = Boolean(anchorEl);
@@ -86,7 +93,9 @@ const HeaderLinks = (props: Props) => {
           className={classes.buttonLink}
         >
           <Notifications className={classes.icons} />
-          <span className={classes.notifications}>5</span>
+          <span className={classes.notifications}>
+            {currentMessage && role === UserRole.Translator ? 1 : 0}
+          </span>
           <Hidden mdUp={true} implementation="css">
             <p className={classes.linkText}>
               {/* onClick={this.handleClick} */}
@@ -118,36 +127,14 @@ const HeaderLinks = (props: Props) => {
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList role="menu">
-                    <MenuItem
-                      onClick={handleClose}
-                      className={classes.dropdownItem}
-                    >
-                      Mike John responded to your email
-                    </MenuItem>
-                    <MenuItem
-                      onClick={handleClose}
-                      className={classes.dropdownItem}
-                    >
-                      You have 5 new tasks
-                    </MenuItem>
-                    <MenuItem
-                      onClick={handleClose}
-                      className={classes.dropdownItem}
-                    >
-                      You're now friend with Andrew
-                    </MenuItem>
-                    <MenuItem
-                      onClick={handleClose}
-                      className={classes.dropdownItem}
-                    >
-                      Another Notification
-                    </MenuItem>
-                    <MenuItem
-                      onClick={handleClose}
-                      className={classes.dropdownItem}
-                    >
-                      Another One
-                    </MenuItem>
+                    {currentMessage && role === UserRole.Translator && (
+                      <MenuItem
+                        onClick={handleClose}
+                        className={classes.dropdownItem}
+                      >
+                        <Message message={currentMessage} />
+                      </MenuItem>
+                    )}
                   </MenuList>
                 </ClickAwayListener>
               </Paper>

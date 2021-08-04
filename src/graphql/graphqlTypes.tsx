@@ -60,6 +60,18 @@ export type CreateUserResponse = {
 };
 
 
+export type GetAllTranslationResponse = {
+  __typename?: 'GetAllTranslationResponse';
+  key: Scalars['String'];
+  en: Scalars['String'];
+  fr: Scalars['String'];
+  zh: Scalars['String'];
+  ar: Scalars['String'];
+  pt: Scalars['String'];
+  es: Scalars['String'];
+  ko: Scalars['String'];
+};
+
 export type GetTranslationLanguageInput = {
   taskId: Scalars['Int'];
   myTaskLanguage?: Maybe<Scalars['String']>;
@@ -123,6 +135,7 @@ export type Query = {
   __typename?: 'Query';
   getProjects?: Maybe<Array<Project>>;
   findProjectById?: Maybe<Project>;
+  getAllTranslations?: Maybe<Array<GetAllTranslationResponse>>;
   getTasks?: Maybe<Array<Task>>;
   getMyTaskLanguage?: Maybe<Scalars['String']>;
   getTranslationLanguage?: Maybe<Array<TranslationTaskResponse>>;
@@ -143,6 +156,11 @@ export type QueryGetMyTaskLanguageArgs = {
 
 export type QueryGetTranslationLanguageArgs = {
   input: GetTranslationLanguageInput;
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  taskCreated?: Maybe<Task>;
 };
 
 export type Task = {
@@ -329,6 +347,17 @@ export type UpdateTranslationLanguageMutation = (
     { __typename?: 'UpdateTranslationLanguageResponse' }
     & Pick<UpdateTranslationLanguageResponse, 'ok' | 'error'>
   ) }
+);
+
+export type TaskCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TaskCreatedSubscription = (
+  { __typename?: 'Subscription' }
+  & { taskCreated?: Maybe<(
+    { __typename?: 'Task' }
+    & Pick<Task, 'id' | 'name'>
+  )> }
 );
 
 
@@ -686,3 +715,33 @@ export function useUpdateTranslationLanguageMutation(baseOptions?: Apollo.Mutati
 export type UpdateTranslationLanguageMutationHookResult = ReturnType<typeof useUpdateTranslationLanguageMutation>;
 export type UpdateTranslationLanguageMutationResult = Apollo.MutationResult<UpdateTranslationLanguageMutation>;
 export type UpdateTranslationLanguageMutationOptions = Apollo.BaseMutationOptions<UpdateTranslationLanguageMutation, UpdateTranslationLanguageMutationVariables>;
+export const TaskCreatedDocument = gql`
+    subscription taskCreated {
+  taskCreated {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useTaskCreatedSubscription__
+ *
+ * To run a query within a React component, call `useTaskCreatedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useTaskCreatedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTaskCreatedSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTaskCreatedSubscription(baseOptions?: Apollo.SubscriptionHookOptions<TaskCreatedSubscription, TaskCreatedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<TaskCreatedSubscription, TaskCreatedSubscriptionVariables>(TaskCreatedDocument, options);
+      }
+export type TaskCreatedSubscriptionHookResult = ReturnType<typeof useTaskCreatedSubscription>;
+export type TaskCreatedSubscriptionResult = Apollo.SubscriptionResult<TaskCreatedSubscription>;

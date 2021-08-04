@@ -65,3 +65,10 @@ mutation updateTranslationLanguage($input: UpdateTranslationLanguageInput!) {
     error
   }
 }
+
+subscription taskCreated {
+  taskCreated {
+    id
+    name
+  }
+}

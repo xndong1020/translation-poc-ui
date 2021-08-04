@@ -50,6 +50,7 @@ interface IStep {
   stepName: string;
   stepComponent: (props: any) => JSX.Element;
   stepId: string;
+  key: string;
 }
 
 interface Props {
@@ -76,8 +77,6 @@ export default function VerticalLinearStepper(props: Props) {
   const { taskName, translationItems, assignees } =
     useContext(CreateTaskContext);
 
-  console.log("aaa", taskName, translationItems, assignees);
-
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = props.steps.map((step) => step.stepName);
 
@@ -88,7 +87,7 @@ export default function VerticalLinearStepper(props: Props) {
       // update state
       setIsSending(true);
       // send the actual request
-      const { ok, error } = await createNewTask({
+      const { ok } = await createNewTask({
         taskName,
         translationItems,
         assignees,
