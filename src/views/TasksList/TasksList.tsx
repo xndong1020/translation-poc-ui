@@ -78,10 +78,7 @@ const TasksList = () => {
     return () => {};
   }, [currentMessage, role]);
 
-  const round = (number: number, decimalPlaces: number) => {
-    const factorOfTen = Math.pow(10, decimalPlaces);
-    return Math.round(number * factorOfTen) / decimalPlaces;
-  };
+  const round = (number: number) => Math.round(number * 100);
 
   const showTaskInfo = (key: any) => {
     const t = tasks.find((t) => t.id === key);
@@ -91,8 +88,8 @@ const TasksList = () => {
       const pending = pendingKeysCount! / totalKeysCount!;
       const complete = (totalKeysCount! - pendingKeysCount!) / totalKeysCount!;
       setChartData({
-        labels: [`${round(pending, 2)}%`, `${round(complete, 2)}%`],
-        series: [round(pending, 2), round(complete, 2)],
+        labels: [`Pending ${round(pending)}%`, `Completed ${round(complete)}%`],
+        series: [round(pending), round(complete)],
         savedOn,
       });
     }
