@@ -19,7 +19,7 @@ const adminRoutes = [
     icon: Dashboard,
     component: DashboardMain,
     layout: "/admin",
-    showOnSidebar: false,
+    showOnSidebar: true,
   },
   {
     path: "/projects",

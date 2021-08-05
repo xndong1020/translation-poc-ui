@@ -77,6 +77,12 @@ export type GetTranslationLanguageInput = {
   myTaskLanguage?: Maybe<Scalars['String']>;
 };
 
+export type LockTaskResponse = {
+  __typename?: 'LockTaskResponse';
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+};
+
 export type LoginUserDto = {
   email: Scalars['String'];
   password: Scalars['String'];
@@ -94,6 +100,7 @@ export type Mutation = {
   createTask?: Maybe<Scalars['Int']>;
   createNewTask: CreateNewTaskResponse;
   updateTranslationLanguage: UpdateTranslationLanguageResponse;
+  lockTask: LockTaskResponse;
   createUser: CreateUserResponse;
   loginUser: LoginUserResponse;
 };
@@ -111,6 +118,11 @@ export type MutationCreateNewTaskArgs = {
 
 export type MutationUpdateTranslationLanguageArgs = {
   updateTranslationLanguageInput: UpdateTranslationLanguageInput;
+};
+
+
+export type MutationLockTaskArgs = {
+  taskId: Scalars['Float'];
 };
 
 
@@ -158,9 +170,15 @@ export type QueryGetTranslationLanguageArgs = {
   input: GetTranslationLanguageInput;
 };
 
+export type ServerMessage = {
+  __typename?: 'ServerMessage';
+  functionName: Scalars['String'];
+  payload: Scalars['String'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
-  taskCreated?: Maybe<Task>;
+  messageFeed?: Maybe<ServerMessage>;
 };
 
 export type Task = {
@@ -170,9 +188,13 @@ export type Task = {
   updatedAt?: Maybe<Scalars['DateTime']>;
   name: Scalars['String'];
   savedOn: Scalars['DateTime'];
-  isComplete: Scalars['Boolean'];
+  isLocked: Scalars['Boolean'];
+  updatedBy?: Maybe<Scalars['String']>;
   translationItems: Array<Translation>;
   assignees: Array<Assignee>;
+  hasCompleted?: Maybe<Scalars['Boolean']>;
+  totalKeysCount?: Maybe<Scalars['Int']>;
+  pendingKeysCount?: Maybe<Scalars['Int']>;
 };
 
 export type Translation = {
@@ -182,6 +204,7 @@ export type Translation = {
   updatedAt?: Maybe<Scalars['DateTime']>;
   keyName: Scalars['String'];
   task: Task;
+  hasComplete?: Maybe<Scalars['Boolean']>;
 };
 
 export type TranslationKey = {
@@ -207,6 +230,7 @@ export type UpdateTranslationLanguageInput = {
   es?: Maybe<Scalars['String']>;
   ar?: Maybe<Scalars['String']>;
   ko?: Maybe<Scalars['String']>;
+  hasComplete?: Maybe<Scalars['Boolean']>;
 };
 
 export type UpdateTranslationLanguageResponse = {
@@ -262,7 +286,7 @@ export type GetTasksQuery = (
   { __typename?: 'Query' }
   & { getTasks?: Maybe<Array<(
     { __typename?: 'Task' }
-    & Pick<Task, 'id' | 'name' | 'savedOn' | 'isComplete'>
+    & Pick<Task, 'id' | 'name' | 'isLocked' | 'savedOn' | 'totalKeysCount' | 'pendingKeysCount' | 'hasCompleted'>
   )>> }
 );
 
@@ -349,14 +373,27 @@ export type UpdateTranslationLanguageMutation = (
   ) }
 );
 
-export type TaskCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+export type LockTaskMutationVariables = Exact<{
+  taskId: Scalars['Float'];
+}>;
 
 
-export type TaskCreatedSubscription = (
+export type LockTaskMutation = (
+  { __typename?: 'Mutation' }
+  & { lockTask: (
+    { __typename?: 'LockTaskResponse' }
+    & Pick<LockTaskResponse, 'ok' | 'error'>
+  ) }
+);
+
+export type MessageFeedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MessageFeedSubscription = (
   { __typename?: 'Subscription' }
-  & { taskCreated?: Maybe<(
-    { __typename?: 'Task' }
-    & Pick<Task, 'id' | 'name'>
+  & { messageFeed?: Maybe<(
+    { __typename?: 'ServerMessage' }
+    & Pick<ServerMessage, 'functionName' | 'payload'>
   )> }
 );
 
@@ -441,8 +478,11 @@ export const GetTasksDocument = gql`
   getTasks {
     id
     name
+    isLocked
     savedOn
-    isComplete
+    totalKeysCount
+    pendingKeysCount
+    hasCompleted
   }
 }
     `;
@@ -715,33 +755,67 @@ export function useUpdateTranslationLanguageMutation(baseOptions?: Apollo.Mutati
 export type UpdateTranslationLanguageMutationHookResult = ReturnType<typeof useUpdateTranslationLanguageMutation>;
 export type UpdateTranslationLanguageMutationResult = Apollo.MutationResult<UpdateTranslationLanguageMutation>;
 export type UpdateTranslationLanguageMutationOptions = Apollo.BaseMutationOptions<UpdateTranslationLanguageMutation, UpdateTranslationLanguageMutationVariables>;
-export const TaskCreatedDocument = gql`
-    subscription taskCreated {
-  taskCreated {
-    id
-    name
+export const LockTaskDocument = gql`
+    mutation lockTask($taskId: Float!) {
+  lockTask(taskId: $taskId) {
+    ok
+    error
+  }
+}
+    `;
+export type LockTaskMutationFn = Apollo.MutationFunction<LockTaskMutation, LockTaskMutationVariables>;
+
+/**
+ * __useLockTaskMutation__
+ *
+ * To run a mutation, you first call `useLockTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLockTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [lockTaskMutation, { data, loading, error }] = useLockTaskMutation({
+ *   variables: {
+ *      taskId: // value for 'taskId'
+ *   },
+ * });
+ */
+export function useLockTaskMutation(baseOptions?: Apollo.MutationHookOptions<LockTaskMutation, LockTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LockTaskMutation, LockTaskMutationVariables>(LockTaskDocument, options);
+      }
+export type LockTaskMutationHookResult = ReturnType<typeof useLockTaskMutation>;
+export type LockTaskMutationResult = Apollo.MutationResult<LockTaskMutation>;
+export type LockTaskMutationOptions = Apollo.BaseMutationOptions<LockTaskMutation, LockTaskMutationVariables>;
+export const MessageFeedDocument = gql`
+    subscription messageFeed {
+  messageFeed {
+    functionName
+    payload
   }
 }
     `;
 
 /**
- * __useTaskCreatedSubscription__
+ * __useMessageFeedSubscription__
  *
- * To run a query within a React component, call `useTaskCreatedSubscription` and pass it any options that fit your needs.
- * When your component renders, `useTaskCreatedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useMessageFeedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useMessageFeedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTaskCreatedSubscription({
+ * const { data, loading, error } = useMessageFeedSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useTaskCreatedSubscription(baseOptions?: Apollo.SubscriptionHookOptions<TaskCreatedSubscription, TaskCreatedSubscriptionVariables>) {
+export function useMessageFeedSubscription(baseOptions?: Apollo.SubscriptionHookOptions<MessageFeedSubscription, MessageFeedSubscriptionVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useSubscription<TaskCreatedSubscription, TaskCreatedSubscriptionVariables>(TaskCreatedDocument, options);
+        return Apollo.useSubscription<MessageFeedSubscription, MessageFeedSubscriptionVariables>(MessageFeedDocument, options);
       }
-export type TaskCreatedSubscriptionHookResult = ReturnType<typeof useTaskCreatedSubscription>;
-export type TaskCreatedSubscriptionResult = Apollo.SubscriptionResult<TaskCreatedSubscription>;
+export type MessageFeedSubscriptionHookResult = ReturnType<typeof useMessageFeedSubscription>;
+export type MessageFeedSubscriptionResult = Apollo.SubscriptionResult<MessageFeedSubscription>;

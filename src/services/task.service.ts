@@ -14,6 +14,9 @@ import {
   GetTranslationLanguageInput,
   GetTranslationLanguageQuery,
   GetTranslationLanguageQueryVariables,
+  LockTaskDocument,
+  LockTaskMutation,
+  LockTaskMutationVariables,
 } from "../graphql/graphqlTypes";
 
 export const getAllTasks = async () => {
@@ -68,4 +71,15 @@ export const createNewTask = async ({
       },
     })
   ).data.createNewTask!;
+};
+
+export const lockTask = async (taskId: number) => {
+  return (
+    await client.query<LockTaskMutation, LockTaskMutationVariables>({
+      query: LockTaskDocument,
+      variables: {
+        taskId,
+      },
+    })
+  ).data.lockTask!;
 };

@@ -18,8 +18,11 @@ query getTasks {
   getTasks {
     id
     name
+    isLocked
     savedOn
-    isComplete
+    totalKeysCount
+    pendingKeysCount
+    hasCompleted
   }
 }
 query getMyTaskLanguage($taskId: Float!) {
@@ -65,10 +68,16 @@ mutation updateTranslationLanguage($input: UpdateTranslationLanguageInput!) {
     error
   }
 }
+mutation lockTask($taskId: Float!) {
+  lockTask(taskId: $taskId) {
+   ok
+   error
+  }
+}
 
-subscription taskCreated {
-  taskCreated {
-    id
-    name
+subscription messageFeed {
+  messageFeed {
+    functionName
+    payload
   }
 }

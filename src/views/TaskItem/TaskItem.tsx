@@ -204,6 +204,36 @@ const TaskItem = () => {
               </Button>
             </DialogActions>
           </Dialog>
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Enter translation</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Enter your translation for Key {currentRecord.key}. For example,
+                in English it is {currentRecord.en}
+              </DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="translate"
+                label={`Translation for ${currentRecord.key}`}
+                type="text"
+                onChange={(e: any) => handleChange(e.target.value)}
+                fullWidth
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} color="primary">
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
         </CardBody>
       </Card>
     </>

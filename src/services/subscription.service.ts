@@ -1,17 +1,17 @@
 import { client } from "../client";
 import {
-  TaskCreatedDocument,
-  TaskCreatedSubscription,
-  TaskCreatedSubscriptionVariables,
+  MessageFeedDocument,
+  MessageFeedSubscription,
+  MessageFeedSubscriptionVariables,
 } from "../graphql/graphqlTypes";
 
-export const subscriptionToTaskCreated = async () => {
+export const subscriptionToMessageFeed = async () => {
   return (
     await client.query<
-      TaskCreatedSubscription,
-      TaskCreatedSubscriptionVariables
+      MessageFeedSubscription,
+      MessageFeedSubscriptionVariables
     >({
-      query: TaskCreatedDocument,
+      query: MessageFeedDocument,
     })
-  ).data.taskCreated!;
+  ).data.messageFeed!;
 };

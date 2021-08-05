@@ -16,11 +16,11 @@ export interface IWebSocketContext {
   currentMessage?: IWebSocketMessage;
 }
 
-export const NewTaskAddedDocument = gql`
-  subscription taskCreated {
-    taskCreated {
-      id
-      name
+export const messageFeedDocument = gql`
+  subscription messageFeed {
+    messageFeed {
+      functionName
+      payload
     }
   }
 `;
@@ -29,7 +29,7 @@ export const WebSocketContextProvider = memo(
   ({ children }: { children: any }) => {
     const onSubscriptionData = useCallback(
       ({ subscriptionData: { data } }: OnSubscriptionDataOptions) => {
-        const currentMessage = data.taskCreated.id;
+        const currentMessage = data.messageFeed;
         console.log(`currentMessage`, currentMessage);
         setState((prevState: IWebSocketContext) => {
           return {
@@ -43,7 +43,7 @@ export const WebSocketContextProvider = memo(
 
     const [state, setState] = useState({});
 
-    useSubscription(NewTaskAddedDocument, {
+    useSubscription(messageFeedDocument, {
       onSubscriptionData,
       client: wsClient,
     });
