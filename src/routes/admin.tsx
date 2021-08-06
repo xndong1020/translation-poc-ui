@@ -8,6 +8,8 @@ import DashboardMain from "../views/Dashboard/Dashboard";
 import ProjectItem from "../views/ProjectItem";
 import TasksList from "../views/TasksList/TasksList";
 import CreateTaskWizard from "../views/CreateTaskWizard/CreateTaskWizard";
+import SearchResults from "../views/SearchResults/SearchResults";
+import { Search } from "@material-ui/icons";
 
 // routes for the sidebar
 const adminRoutes = [
@@ -55,6 +57,15 @@ const adminRoutes = [
     rtlName: "لوحة القيادة",
     icon: CalendarToday,
     component: CreateTaskWizard,
+    layout: "/admin",
+    showOnSidebar: true,
+  },
+  {
+    path: "/translation/search",
+    name: "Search Translation",
+    rtlName: "لوحة القيادة",
+    icon: Search,
+    component: SearchResults,
     layout: "/admin",
     showOnSidebar: true,
   },

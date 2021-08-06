@@ -30,11 +30,11 @@ query getMyTaskLanguage($taskId: Float!) {
 }
 
 query getTranslationLanguage($input: GetTranslationLanguageInput!) {
-  getTranslationLanguage (input: $input) {
+  getTranslationLanguage(input: $input) {
     languageId
     keyName
     en
-    assignedLanguageName,
+    assignedLanguageName
     assignedLanguageValue
   }
 }
@@ -46,6 +46,22 @@ query me {
     role
   }
 }
+query search($queryText: String!) {
+  search(queryText: $queryText) {
+    keyName
+    description
+    translation {
+      en
+      fr
+      zh
+      pt
+      es
+      ko
+      ar
+    }
+  }
+}
+
 mutation createTask($taskName: CreateTaskInput!) {
   createTask(createTaskDto: $taskName)
 }
@@ -70,8 +86,8 @@ mutation updateTranslationLanguage($input: UpdateTranslationLanguageInput!) {
 }
 mutation lockTask($taskId: Float!) {
   lockTask(taskId: $taskId) {
-   ok
-   error
+    ok
+    error
   }
 }
 

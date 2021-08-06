@@ -151,6 +151,7 @@ export type Query = {
   getTasks?: Maybe<Array<Task>>;
   getMyTaskLanguage?: Maybe<Scalars['String']>;
   getTranslationLanguage?: Maybe<Array<TranslationTaskResponse>>;
+  search?: Maybe<Array<TranslationSearchResponse>>;
   getUsers: Array<User>;
   me: User;
 };
@@ -168,6 +169,11 @@ export type QueryGetMyTaskLanguageArgs = {
 
 export type QueryGetTranslationLanguageArgs = {
   input: GetTranslationLanguageInput;
+};
+
+
+export type QuerySearchArgs = {
+  queryText: Scalars['String'];
 };
 
 export type ServerMessage = {
@@ -210,6 +216,24 @@ export type Translation = {
 export type TranslationKey = {
   keyName: Scalars['String'];
   keyValue: Scalars['String'];
+};
+
+export type TranslationResponse = {
+  __typename?: 'TranslationResponse';
+  en: Scalars['String'];
+  fr: Scalars['String'];
+  zh: Scalars['String'];
+  es: Scalars['String'];
+  pt: Scalars['String'];
+  ko: Scalars['String'];
+  ar: Scalars['String'];
+};
+
+export type TranslationSearchResponse = {
+  __typename?: 'TranslationSearchResponse';
+  keyName: Scalars['String'];
+  description: Scalars['String'];
+  translation: TranslationResponse;
 };
 
 export type TranslationTaskResponse = {
@@ -322,6 +346,23 @@ export type MeQuery = (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'email' | 'role'>
   ) }
+);
+
+export type SearchQueryVariables = Exact<{
+  queryText: Scalars['String'];
+}>;
+
+
+export type SearchQuery = (
+  { __typename?: 'Query' }
+  & { search?: Maybe<Array<(
+    { __typename?: 'TranslationSearchResponse' }
+    & Pick<TranslationSearchResponse, 'keyName' | 'description'>
+    & { translation: (
+      { __typename?: 'TranslationResponse' }
+      & Pick<TranslationResponse, 'en' | 'fr' | 'zh' | 'pt' | 'es' | 'ko' | 'ar'>
+    ) }
+  )>> }
 );
 
 export type CreateTaskMutationVariables = Exact<{
@@ -621,6 +662,51 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const SearchDocument = gql`
+    query search($queryText: String!) {
+  search(queryText: $queryText) {
+    keyName
+    description
+    translation {
+      en
+      fr
+      zh
+      pt
+      es
+      ko
+      ar
+    }
+  }
+}
+    `;
+
+/**
+ * __useSearchQuery__
+ *
+ * To run a query within a React component, call `useSearchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchQuery({
+ *   variables: {
+ *      queryText: // value for 'queryText'
+ *   },
+ * });
+ */
+export function useSearchQuery(baseOptions: Apollo.QueryHookOptions<SearchQuery, SearchQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchQuery, SearchQueryVariables>(SearchDocument, options);
+      }
+export function useSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchQuery, SearchQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchQuery, SearchQueryVariables>(SearchDocument, options);
+        }
+export type SearchQueryHookResult = ReturnType<typeof useSearchQuery>;
+export type SearchLazyQueryHookResult = ReturnType<typeof useSearchLazyQuery>;
+export type SearchQueryResult = Apollo.QueryResult<SearchQuery, SearchQueryVariables>;
 export const CreateTaskDocument = gql`
     mutation createTask($taskName: CreateTaskInput!) {
   createTask(createTaskDto: $taskName)
