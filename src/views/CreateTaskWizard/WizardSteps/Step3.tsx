@@ -3,7 +3,15 @@ import { useContext, useEffect, useState } from "react";
 // core components
 import GridContainer from "../../../components/Grid/GridContainer";
 import GridItem from "../../../components/Grid/GridItem";
-import { Button, Chip, makeStyles, Theme } from "@material-ui/core";
+import {
+  Button,
+  Chip,
+  makeStyles,
+  Theme,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+} from "@material-ui/core";
 import Card from "../../../components/Card/Card";
 import CardHeader from "../../../components/Card/CardHeader";
 import CardIcon from "../../../components/Card/CardIcon";
@@ -54,6 +62,7 @@ const Step3 = (props: any) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedLanguage, setSelectedLanguage] = useState([] as string[]);
   const [selected, setSelected] = useState([] as ISelected[]);
+  const [checked, setChecked] = useState(false);
 
   const { setAssignees } = useContext(CreateTaskContext);
 
@@ -68,6 +77,19 @@ const Step3 = (props: any) => {
   }, [selected, setAssignees]);
 
   const classes = useStyles();
+
+  const handleCheckboxChange = () => {
+    setChecked(!checked);
+    if (!checked) {
+      const allSelected = allLanguages.map((language, idx) => {
+        return {
+          language,
+          email: `translator0${idx + 1}@test.com`,
+        };
+      });
+      setSelected(allSelected);
+    } else setSelected([]);
+  };
 
   let unassignedLanguages = [...allLanguages];
   unassignedLanguages = unassignedLanguages.filter((key) => {
@@ -101,6 +123,20 @@ const Step3 = (props: any) => {
               <MailOutline />
             </CardIcon>
             <h3 className={classes.cardIconTitle}>Assign to translators</h3>
+            <FormGroup row>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={checked}
+                    onChange={handleCheckboxChange}
+                    inputProps={{
+                      "aria-label": "Assign To Default Translators",
+                    }}
+                  />
+                }
+                label="Assign To Default Translators"
+              />
+            </FormGroup>
           </CardHeader>
           <CardBody>
             <Formik
