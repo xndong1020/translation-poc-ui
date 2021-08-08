@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 import {
   Avatar,
@@ -7,19 +7,24 @@ import {
   CardContent,
   Chip,
   createStyles,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Grid,
   InputAdornment,
   makeStyles,
+  Radio,
+  RadioGroup,
   TextField,
   Theme,
   Typography,
-} from "@material-ui/core";
-import { Search } from "@material-ui/icons";
-import { Form, Formik, FormikProps } from "formik";
-import * as Yup from "yup";
-import { searchByText } from "../../services/search.service";
-import { TranslationSearchResponse } from "../../graphql/graphqlTypes";
-import Card from "../../components/Card/Card";
+} from '@material-ui/core';
+import { Search } from '@material-ui/icons';
+import { Form, Formik, FormikProps } from 'formik';
+import * as Yup from 'yup';
+import { searchByText } from '../../services/search.service';
+import { TranslationSearchResponse } from '../../graphql/graphqlTypes';
+import Card from '../../components/Card/Card';
 
 type SearchResultProps = TranslationSearchResponse;
 
@@ -30,34 +35,36 @@ interface IFormStatus {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      maxWidth: "450px",
-      display: "block",
-      margin: "0 auto",
+      maxWidth: '450px',
+      display: 'block',
+      margin: '0 auto',
     },
     textField: {
-      "& > *": {
-        width: "100%",
-        marginBottom: "1rem",
+      '& > *': {
+        width: '100%',
+        marginBottom: '1rem',
       },
     },
     submitButton: {
-      marginTop: "24px",
+      marginTop: '24px',
     },
-    title: { textAlign: "center" },
-    successMessage: { color: "green" },
-    errorMessage: { color: "red" },
+    title: { textAlign: 'center' },
+    successMessage: { color: 'green' },
+    errorMessage: { color: 'red' },
     inputAdornment: {
-      marginRight: "18px",
+      marginRight: '18px',
     },
     inputAdornmentIcon: {
-      color: "#555",
+      color: '#555',
     },
-  })
+  }),
 );
 
 const SearchForm = () => {
   const classes = useStyles();
   const isMounted = useRef(true);
+
+  const [searchMethodValue, setSearchMethodValue] = useState('fuzzy');
 
   const [results, setResults] = useState<SearchResultProps[]>([]);
 
@@ -73,21 +80,28 @@ const SearchForm = () => {
       // API call integration will be here. Handle success / error response accordingly.
       if (data) {
         const { queryText } = data;
-        const res = await searchByText(queryText);
-        console.log("res", res);
+        const res = await searchByText({
+          queryText,
+          fuzzy: searchMethodValue === 'fuzzy',
+        });
+        console.log('res', res);
         setResults(res);
         resetForm();
       }
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
     }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchMethodValue((event.target as HTMLInputElement).value);
   };
 
   return (
     <div>
       <Formik
         initialValues={{
-          queryText: "",
+          queryText: '',
         }}
         onSubmit={(values: IFormStatus, actions) => {
           loginCurrentUser(values, actions.resetForm);
@@ -96,7 +110,7 @@ const SearchForm = () => {
           }, 500);
         }}
         validationSchema={Yup.object().shape({
-          queryText: Yup.string().required("Enter Search Text"),
+          queryText: Yup.string().required('Enter Search Text'),
         })}
       >
         {(props: FormikProps<IFormStatus>) => {
@@ -113,6 +127,28 @@ const SearchForm = () => {
               <h2 className={classes.title}>
                 Search Existing Translation from ElasticSearch
               </h2>
+              <Grid container justifyContent="flex-end" direction="row">
+                <FormControl component="fieldset">
+                  <FormLabel component="legend">Search Method</FormLabel>
+                  <RadioGroup
+                    aria-label="method"
+                    name="method1"
+                    value={searchMethodValue}
+                    onChange={handleChange}
+                  >
+                    <FormControlLabel
+                      value="fuzzy"
+                      control={<Radio />}
+                      label="Fuzzy Search By English"
+                    />
+                    <FormControlLabel
+                      value="exact"
+                      control={<Radio />}
+                      label="Exact Match By KeyName"
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
               <Grid container justifyContent="space-around" direction="row">
                 <Grid
                   item
@@ -138,7 +174,7 @@ const SearchForm = () => {
                     helperText={
                       errors.queryText && touched.queryText
                         ? errors.queryText
-                        : "Enter Search Text"
+                        : 'Enter Search Text'
                     }
                     error={errors.queryText && touched.queryText ? true : false}
                     onChange={handleChange}
@@ -191,7 +227,7 @@ const SearchForm = () => {
                 <>
                   {!!result.translation &&
                     Object.keys(result.translation)
-                      .filter((key) => key !== "__typename")
+                      .filter((key) => key !== '__typename')
                       .map((key, index) => {
                         return (
                           <Chip
@@ -200,7 +236,7 @@ const SearchForm = () => {
                             label={
                               result.translation[
                                 key as keyof typeof result.translation
-                              ] || "N/A"
+                              ] || 'N/A'
                             }
                             variant="outlined"
                           />

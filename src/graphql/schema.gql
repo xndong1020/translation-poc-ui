@@ -46,8 +46,8 @@ query me {
     role
   }
 }
-query search($queryText: String!) {
-  search(queryText: $queryText) {
+query search($translationSearchInput: TranslationSearchInput!) {
+  search(translationSearchInput: $translationSearchInput) {
     keyName
     description
     translation {

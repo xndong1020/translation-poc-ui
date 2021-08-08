@@ -1,15 +1,20 @@
-import { client } from "../client";
+import { client } from '../client';
 import {
   SearchDocument,
   SearchQuery,
   SearchQueryVariables,
-} from "../graphql/graphqlTypes";
+  TranslationSearchInput,
+} from '../graphql/graphqlTypes';
 
-export const searchByText = async (queryText: string) => {
+export const searchByText = async (
+  translationSearchInput: TranslationSearchInput,
+) => {
   return (
     await client.query<SearchQuery, SearchQueryVariables>({
       query: SearchDocument,
-      variables: { queryText },
+      variables: {
+        translationSearchInput,
+      },
     })
   ).data.search!;
 };

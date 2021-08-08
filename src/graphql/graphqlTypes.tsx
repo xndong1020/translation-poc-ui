@@ -178,7 +178,7 @@ export type QueryGetTranslationLanguageArgs = {
 
 
 export type QuerySearchArgs = {
-  queryText: Scalars['String'];
+  translationSearchInput: TranslationSearchInput;
 };
 
 export type ServerMessage = {
@@ -246,6 +246,11 @@ export type TranslationResponse = {
   pt: Scalars['String'];
   ko: Scalars['String'];
   ar: Scalars['String'];
+};
+
+export type TranslationSearchInput = {
+  queryText: Scalars['String'];
+  fuzzy?: Maybe<Scalars['Boolean']>;
 };
 
 export type TranslationSearchResponse = {
@@ -368,7 +373,7 @@ export type MeQuery = (
 );
 
 export type SearchQueryVariables = Exact<{
-  queryText: Scalars['String'];
+  translationSearchInput: TranslationSearchInput;
 }>;
 
 
@@ -682,8 +687,8 @@ export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const SearchDocument = gql`
-    query search($queryText: String!) {
-  search(queryText: $queryText) {
+    query search($translationSearchInput: TranslationSearchInput!) {
+  search(translationSearchInput: $translationSearchInput) {
     keyName
     description
     translation {
@@ -711,7 +716,7 @@ export const SearchDocument = gql`
  * @example
  * const { data, loading, error } = useSearchQuery({
  *   variables: {
- *      queryText: // value for 'queryText'
+ *      translationSearchInput: // value for 'translationSearchInput'
  *   },
  * });
  */
