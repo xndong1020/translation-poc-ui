@@ -6,7 +6,7 @@ import {
   DialogTitle,
   makeStyles,
 } from '@material-ui/core';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { Theme } from '@material-ui/core/styles';
 
@@ -43,6 +43,7 @@ import CardFooter from '../../components/Card/CardFooter';
 import { AccessTime, LockOpen, Publish, Save } from '@material-ui/icons';
 import { WebSocketContext } from '../../context/WebSocketContext';
 import { round } from '../../utils/round';
+import Person from '@material-ui/icons/Person';
 
 type TaskProps = Pick<
   Task,
@@ -53,16 +54,7 @@ const useStyles = makeStyles<Theme>(extendedTablesStyle);
 
 const TasksList = () => {
   const [tasks, setTasks] = useState([] as TaskProps[]);
-  const [currentTask, setCurrentTask] = useState<Task>({
-    id: 0,
-    name: '',
-    savedOn: '',
-    status: TaskStatus.Pending,
-    pendingKeysCount: 0,
-    totalKeysCount: 0,
-    translationItems: [],
-    assignees: [],
-  });
+
   const [openInfo, setOpenInfo] = useState(false);
   const [openLock, setOpenLock] = useState(false);
   const [chartData, setChartData] = useState({
@@ -94,6 +86,14 @@ const TasksList = () => {
     return () => {};
   }, [currentMessage, role]);
 
+  const currentTask = useMemo(() => {
+    const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+    if (currentTaskIndex !== -1) return tasks[currentTaskIndex];
+    else return undefined;
+  }, [taskId, tasks]);
+
+  console.log('currentTask', currentTask);
+
   const showTaskInfo = (key: any) => {
     const t = tasks.find((t) => t.id === key);
     if (t) {
@@ -107,7 +107,7 @@ const TasksList = () => {
         savedOn,
       });
     }
-    handleInfoOpen();
+    handleInfoOpen(key);
   };
 
   const editTask = (key: any) => {
@@ -117,18 +117,11 @@ const TasksList = () => {
   const handleLockOpen = async (key: any) => {
     setOpenLock(true);
     setTaskId(key);
-    const task = tasks.find((t) => t.id === key);
-    if (task) {
-      setCurrentTask({
-        ...task,
-        translationItems: [],
-        assignees: [],
-      });
-    }
   };
 
-  const handleInfoOpen = () => {
+  const handleInfoOpen = (key: any) => {
     setOpenInfo(true);
+    setTaskId(key);
   };
 
   const handleInfoClose = () => {
@@ -140,9 +133,7 @@ const TasksList = () => {
   };
 
   const handleLockTask = async () => {
-    if (taskId) {
-      await toggleLockTask(taskId);
-    }
+    await toggleLockTask(taskId);
     setOpenLock(false);
   };
 
@@ -159,15 +150,74 @@ const TasksList = () => {
     }
   };
 
-  const getLockIcon = (role: string, isLocked: boolean) => {
+  const getLockIcon = (role: string, taskId: number) => {
     switch (role) {
-      case UserRole.Translator:
-        return isLocked ? Lock : Edit;
+      case UserRole.Translator: {
+        const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+        const currentTask =
+          currentTaskIndex === -1 ? undefined : tasks[currentTaskIndex];
+
+        if (!currentTask) return Edit;
+        return [TaskStatus.Locked, TaskStatus.Released].includes(
+          currentTask?.status,
+        )
+          ? Lock
+          : Edit;
+      }
       case UserRole.Admin:
       case UserRole.Owner:
-      default:
-        return isLocked ? Lock : LockOpen;
+      default: {
+        const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+        const currentTask =
+          currentTaskIndex === -1 ? undefined : tasks[currentTaskIndex];
+
+        if (!currentTask) return LockOpen;
+        return currentTask.status === TaskStatus.Locked ? Lock : LockOpen;
+      }
     }
+  };
+
+  const shouldDisableLockIcon = (role: string, taskId: number) => {
+    switch (role) {
+      case UserRole.Translator: {
+        const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+        const currentTask =
+          currentTaskIndex === -1 ? undefined : tasks[currentTaskIndex];
+
+        if (!currentTask) return Edit;
+        return [TaskStatus.Locked, TaskStatus.Released].includes(
+          currentTask?.status,
+        );
+      }
+      case UserRole.Admin:
+      case UserRole.Owner:
+      default: {
+        const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+        const currentTask =
+          currentTaskIndex === -1 ? undefined : tasks[currentTaskIndex];
+
+        if (!currentTask) return Person;
+        return [TaskStatus.Released].includes(currentTask?.status);
+      }
+    }
+  };
+
+  const shouldDisableProofreadIcon = (taskId: number) => {
+    const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+    const currentTask =
+      currentTaskIndex === -1 ? undefined : tasks[currentTaskIndex];
+
+    if (!currentTask) return Person;
+    return [TaskStatus.Released].includes(currentTask?.status);
+  };
+
+  const shouldPublishIcon = (taskId: number) => {
+    const currentTaskIndex = tasks.findIndex((x) => x.id === taskId);
+    const currentTask =
+      currentTaskIndex === -1 ? undefined : tasks[currentTaskIndex];
+
+    if (!currentTask) return Person;
+    return [TaskStatus.Released].includes(currentTask?.status);
   };
 
   const simpleButtons = ({
@@ -186,52 +236,36 @@ const TasksList = () => {
       },
       {
         color: 'success',
-        icon: getLockIcon(
-          role,
-          role === UserRole.Translator &&
-            currentTask.status !== TaskStatus.Pending,
-        ),
+        icon: getLockIcon(role, taskId),
         handler: editTask,
-        disabled:
-          role === UserRole.Translator &&
-          currentTask.status !== TaskStatus.Pending,
+        disabled: shouldDisableLockIcon(role, taskId),
         roles: [UserRole.Translator],
       },
       {
         color: 'danger',
-        icon: getLockIcon(
-          role,
-          role !== UserRole.Translator &&
-            currentTask.status === TaskStatus.Released,
-        ),
+        icon: getLockIcon(role, taskId),
         handler: handleLockOpen,
-        disabled:
-          role !== UserRole.Translator &&
-          currentTask.status === TaskStatus.Released,
+        disabled: shouldDisableLockIcon(role, taskId),
         roles: [UserRole.Admin, UserRole.Owner],
       },
       {
         color: 'info',
         icon: Save,
         handler: handleTranslatorSubmit,
-        disabled:
-          role === UserRole.Translator &&
-          currentTask.status === TaskStatus.Released,
+        disabled: shouldDisableProofreadIcon(taskId),
         roles: [UserRole.Translator],
       },
       {
         color: 'success',
         icon: Publish,
         handler: handleAdminRelease,
-        disabled:
-          role !== UserRole.Translator &&
-          currentTask.status === TaskStatus.Released,
+        disabled: shouldPublishIcon(taskId),
         roles: [UserRole.Admin, UserRole.Owner],
       },
     ];
 
     const userBtns = allBtns.filter((btn) =>
-      btn.roles.includes(role as UserRole),
+      btn.roles?.includes(role as UserRole),
     );
 
     const btns = userBtns.map((prop, key) => {
@@ -332,7 +366,7 @@ const TasksList = () => {
                 <DialogContent>
                   <DialogContentText>
                     Please Confirm that you want to{' '}
-                    {currentTask.status === TaskStatus.Locked
+                    {currentTask?.status === TaskStatus.Locked
                       ? 'unlock'
                       : 'lock'}{' '}
                     this task.

@@ -89,7 +89,6 @@ export const toggleLockTask = async (taskId: number) => {
 };
 
 export const proofreadTask = async (taskId: number) => {
-  console.log('aaa', taskId);
   return (
     await client.query<ActionOnTaskMutation, ActionOnTaskMutationVariables>({
       query: ActionOnTaskDocument,
