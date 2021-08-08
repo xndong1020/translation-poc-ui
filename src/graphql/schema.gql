@@ -18,7 +18,7 @@ query getTasks {
   getTasks {
     id
     name
-    isLocked
+    status
     savedOn
     totalKeysCount
     pendingKeysCount
@@ -84,8 +84,8 @@ mutation updateTranslationLanguage($input: UpdateTranslationLanguageInput!) {
     error
   }
 }
-mutation lockTask($taskId: Float!) {
-  lockTask(taskId: $taskId) {
+mutation actionOnTask($actionTaskInput: ActionTaskInput!) {
+  actionOnTask(actionTaskInput: $actionTaskInput) {
     ok
     error
   }

@@ -16,6 +16,17 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type ActionTaskInput = {
+  taskId: Scalars['Float'];
+  action: TaskActions;
+};
+
+export type ActionTaskResponse = {
+  __typename?: 'ActionTaskResponse';
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+};
+
 export type Assignee = {
   __typename?: 'Assignee';
   id: Scalars['Float'];
@@ -77,12 +88,6 @@ export type GetTranslationLanguageInput = {
   myTaskLanguage?: Maybe<Scalars['String']>;
 };
 
-export type LockTaskResponse = {
-  __typename?: 'LockTaskResponse';
-  error?: Maybe<Scalars['String']>;
-  ok: Scalars['Boolean'];
-};
-
 export type LoginUserDto = {
   email: Scalars['String'];
   password: Scalars['String'];
@@ -100,7 +105,7 @@ export type Mutation = {
   createTask?: Maybe<Scalars['Int']>;
   createNewTask: CreateNewTaskResponse;
   updateTranslationLanguage: UpdateTranslationLanguageResponse;
-  lockTask: LockTaskResponse;
+  actionOnTask: ActionTaskResponse;
   createUser: CreateUserResponse;
   loginUser: LoginUserResponse;
 };
@@ -121,8 +126,8 @@ export type MutationUpdateTranslationLanguageArgs = {
 };
 
 
-export type MutationLockTaskArgs = {
-  taskId: Scalars['Float'];
+export type MutationActionOnTaskArgs = {
+  actionTaskInput: ActionTaskInput;
 };
 
 
@@ -194,7 +199,7 @@ export type Task = {
   updatedAt?: Maybe<Scalars['DateTime']>;
   name: Scalars['String'];
   savedOn: Scalars['DateTime'];
-  isLocked: Scalars['Boolean'];
+  status: TaskStatus;
   updatedBy?: Maybe<Scalars['String']>;
   translationItems: Array<Translation>;
   assignees: Array<Assignee>;
@@ -202,6 +207,20 @@ export type Task = {
   totalKeysCount?: Maybe<Scalars['Int']>;
   pendingKeysCount?: Maybe<Scalars['Int']>;
 };
+
+export enum TaskActions {
+  Create = 'Create',
+  ToggleLock = 'ToggleLock',
+  Proofread = 'Proofread',
+  Release = 'Release'
+}
+
+export enum TaskStatus {
+  Pending = 'Pending',
+  Locked = 'Locked',
+  Proofreaded = 'Proofreaded',
+  Released = 'Released'
+}
 
 export type Translation = {
   __typename?: 'Translation';
@@ -310,7 +329,7 @@ export type GetTasksQuery = (
   { __typename?: 'Query' }
   & { getTasks?: Maybe<Array<(
     { __typename?: 'Task' }
-    & Pick<Task, 'id' | 'name' | 'isLocked' | 'savedOn' | 'totalKeysCount' | 'pendingKeysCount' | 'hasCompleted'>
+    & Pick<Task, 'id' | 'name' | 'status' | 'savedOn' | 'totalKeysCount' | 'pendingKeysCount' | 'hasCompleted'>
   )>> }
 );
 
@@ -414,16 +433,16 @@ export type UpdateTranslationLanguageMutation = (
   ) }
 );
 
-export type LockTaskMutationVariables = Exact<{
-  taskId: Scalars['Float'];
+export type ActionOnTaskMutationVariables = Exact<{
+  actionTaskInput: ActionTaskInput;
 }>;
 
 
-export type LockTaskMutation = (
+export type ActionOnTaskMutation = (
   { __typename?: 'Mutation' }
-  & { lockTask: (
-    { __typename?: 'LockTaskResponse' }
-    & Pick<LockTaskResponse, 'ok' | 'error'>
+  & { actionOnTask: (
+    { __typename?: 'ActionTaskResponse' }
+    & Pick<ActionTaskResponse, 'ok' | 'error'>
   ) }
 );
 
@@ -519,7 +538,7 @@ export const GetTasksDocument = gql`
   getTasks {
     id
     name
-    isLocked
+    status
     savedOn
     totalKeysCount
     pendingKeysCount
@@ -841,40 +860,40 @@ export function useUpdateTranslationLanguageMutation(baseOptions?: Apollo.Mutati
 export type UpdateTranslationLanguageMutationHookResult = ReturnType<typeof useUpdateTranslationLanguageMutation>;
 export type UpdateTranslationLanguageMutationResult = Apollo.MutationResult<UpdateTranslationLanguageMutation>;
 export type UpdateTranslationLanguageMutationOptions = Apollo.BaseMutationOptions<UpdateTranslationLanguageMutation, UpdateTranslationLanguageMutationVariables>;
-export const LockTaskDocument = gql`
-    mutation lockTask($taskId: Float!) {
-  lockTask(taskId: $taskId) {
+export const ActionOnTaskDocument = gql`
+    mutation actionOnTask($actionTaskInput: ActionTaskInput!) {
+  actionOnTask(actionTaskInput: $actionTaskInput) {
     ok
     error
   }
 }
     `;
-export type LockTaskMutationFn = Apollo.MutationFunction<LockTaskMutation, LockTaskMutationVariables>;
+export type ActionOnTaskMutationFn = Apollo.MutationFunction<ActionOnTaskMutation, ActionOnTaskMutationVariables>;
 
 /**
- * __useLockTaskMutation__
+ * __useActionOnTaskMutation__
  *
- * To run a mutation, you first call `useLockTaskMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLockTaskMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useActionOnTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useActionOnTaskMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [lockTaskMutation, { data, loading, error }] = useLockTaskMutation({
+ * const [actionOnTaskMutation, { data, loading, error }] = useActionOnTaskMutation({
  *   variables: {
- *      taskId: // value for 'taskId'
+ *      actionTaskInput: // value for 'actionTaskInput'
  *   },
  * });
  */
-export function useLockTaskMutation(baseOptions?: Apollo.MutationHookOptions<LockTaskMutation, LockTaskMutationVariables>) {
+export function useActionOnTaskMutation(baseOptions?: Apollo.MutationHookOptions<ActionOnTaskMutation, ActionOnTaskMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<LockTaskMutation, LockTaskMutationVariables>(LockTaskDocument, options);
+        return Apollo.useMutation<ActionOnTaskMutation, ActionOnTaskMutationVariables>(ActionOnTaskDocument, options);
       }
-export type LockTaskMutationHookResult = ReturnType<typeof useLockTaskMutation>;
-export type LockTaskMutationResult = Apollo.MutationResult<LockTaskMutation>;
-export type LockTaskMutationOptions = Apollo.BaseMutationOptions<LockTaskMutation, LockTaskMutationVariables>;
+export type ActionOnTaskMutationHookResult = ReturnType<typeof useActionOnTaskMutation>;
+export type ActionOnTaskMutationResult = Apollo.MutationResult<ActionOnTaskMutation>;
+export type ActionOnTaskMutationOptions = Apollo.BaseMutationOptions<ActionOnTaskMutation, ActionOnTaskMutationVariables>;
 export const MessageFeedDocument = gql`
     subscription messageFeed {
   messageFeed {

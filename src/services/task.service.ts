@@ -1,5 +1,8 @@
-import { client } from "../client";
+import { client } from '../client';
 import {
+  ActionOnTaskDocument,
+  ActionOnTaskMutation,
+  ActionOnTaskMutationVariables,
   CreateNewTaskDocument,
   CreateNewTaskInput,
   CreateNewTaskMutation,
@@ -14,10 +17,8 @@ import {
   GetTranslationLanguageInput,
   GetTranslationLanguageQuery,
   GetTranslationLanguageQueryVariables,
-  LockTaskDocument,
-  LockTaskMutation,
-  LockTaskMutationVariables,
-} from "../graphql/graphqlTypes";
+  TaskActions,
+} from '../graphql/graphqlTypes';
 
 export const getAllTasks = async () => {
   return (
@@ -73,13 +74,45 @@ export const createNewTask = async ({
   ).data.createNewTask!;
 };
 
-export const lockTask = async (taskId: number) => {
+export const toggleLockTask = async (taskId: number) => {
   return (
-    await client.query<LockTaskMutation, LockTaskMutationVariables>({
-      query: LockTaskDocument,
+    await client.query<ActionOnTaskMutation, ActionOnTaskMutationVariables>({
+      query: ActionOnTaskDocument,
       variables: {
-        taskId,
+        actionTaskInput: {
+          taskId,
+          action: TaskActions.ToggleLock,
+        },
       },
     })
-  ).data.lockTask!;
+  ).data.actionOnTask!;
+};
+
+export const proofreadTask = async (taskId: number) => {
+  console.log('aaa', taskId);
+  return (
+    await client.query<ActionOnTaskMutation, ActionOnTaskMutationVariables>({
+      query: ActionOnTaskDocument,
+      variables: {
+        actionTaskInput: {
+          taskId,
+          action: TaskActions.Proofread,
+        },
+      },
+    })
+  ).data.actionOnTask!;
+};
+
+export const releaseTask = async (taskId: number) => {
+  return (
+    await client.query<ActionOnTaskMutation, ActionOnTaskMutationVariables>({
+      query: ActionOnTaskDocument,
+      variables: {
+        actionTaskInput: {
+          taskId,
+          action: TaskActions.Release,
+        },
+      },
+    })
+  ).data.actionOnTask!;
 };
