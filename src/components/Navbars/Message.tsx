@@ -1,10 +1,10 @@
-import { Button } from "@material-ui/core";
-import React from "react";
-import { NavLink } from "react-router-dom";
+import { Button } from '@material-ui/core';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 const Message = ({ message }: { message: any }) => {
   let content: JSX.Element = <div></div>;
-  if (message.functionName === "createNewTask") {
+  if (message.functionName === 'createNewTask') {
     const task = JSON.parse(message.payload);
     content = (
       <div>
@@ -14,7 +14,7 @@ const Message = ({ message }: { message: any }) => {
         </NavLink>
       </div>
     );
-  } else if (message.functionName === "lockTask") {
+  } else if (message.functionName === 'toggleLockTask') {
     const task = JSON.parse(message.payload);
     content = (
       <div>
